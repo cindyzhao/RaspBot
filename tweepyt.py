@@ -2,6 +2,7 @@ import nltkplay
 import time
 import tweepy
 import face
+import vision
 import pyspeedtest
 
 auth = tweepy.OAuthHandler('fqZF3eiteUiPH3egDQBjYQ8YU','Dyhgk1vUDrKmSrwjNyGVnBN8ivFkKV16Y0o6wjHig7koUwaPYJ')
@@ -15,10 +16,16 @@ while True:
         pass
     elif ('media' in tweet.entities):
         for image in tweet.entities['media']:
-            age = face.getAge(image['media_url'])
-            api.update_status('@' + str(tweet.user.screen_name) + ' This person looks like ' + str(age) + 'years old.')
-            face.connectionclose()
-            latest_mention_id = tweet.id
+            try: 
+                age = face.getAge(image['media_url'])
+                api.update_status('@' + str(tweet.user.screen_name) + ' This person looks like ' + str(age) + 'years old.')
+                face.connectionclose()
+                latest_mention_id = tweet.id
+            except:
+                contents = vision.getContents(image['media_url'])
+                api.update_status('@' + str(tweet.user.screen_name) + ' ' + contents) 
+                vision.connectionclose()
+                latest_mention_id = tweet.id
     elif ("speed" in mentions[0].text):
         st = pyspeedtest.SpeedTest()
         api.update_status('@' + str(mentions[0].user.screen_name) + ' My Internet download speed is ' + str(st.download()) + ' bps')
